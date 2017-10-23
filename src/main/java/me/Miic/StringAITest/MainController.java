@@ -103,9 +103,12 @@ public class MainController implements Initializable {
 				newElement.getData().add(new XYChart.Data("Reference (100%)", 100));
 				dat.add(0, newElement);
 				if (dat.size() > 1) {
+					bar.setVisible(true);
 					for(XYChart.Series x : dat) {
 						bar.getData().add(x);
 					}
+				} else {
+					bar.setVisible(false);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
