@@ -10,6 +10,7 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -36,6 +37,7 @@ import javafx.scene.chart.BarChart;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
@@ -49,7 +51,7 @@ public class MainController implements Initializable {
 		Scene scene = stage.getScene();
 		
 		TextField txt = (TextField) scene.lookup("#textfield");
-		Label lab = (Label) scene.lookup("#label");
+		TextArea lab = (TextArea) scene.lookup("#label");
 		Label reg = (Label) scene.lookup("#regret");
 		PieChart pie = (PieChart) scene.lookup("#pie");
 		BarChart<String, Float> bar = (BarChart<String, Float>) scene.lookup("#chart");
@@ -57,9 +59,10 @@ public class MainController implements Initializable {
 		if (txt.getText().length() != 0) { 
 			String token = txt.getText();
 			txt.clear();
-			lab.setText("Cat says: " + token);
+			lab.setText(lab.getText() + "\nCat says: " + token);
 			
 			//Toxicity Display
+			
 			ObservableList<PieChart.Data> pieChartData;
 			reg.setVisible(false);
 			try {
@@ -73,6 +76,8 @@ public class MainController implements Initializable {
 						new PieChart.Data("~" + Math.round(percent) + "%", percent),
 						new PieChart.Data("", 100-percent)
 						);
+			} catch (UnknownHostException e) {
+				pieChartData = FXCollections.observableArrayList(new PieChart.Data("rip interwebs :3", 100));
 			} catch (Exception e) {
 				pieChartData = FXCollections.observableArrayList(new PieChart.Data("Error", 100));	
 			}
