@@ -1,4 +1,4 @@
-package com.elyssiamc.Micc.chatParsingTest;
+package me.Miic.StringAITest;
 
 import java.io.BufferedReader;
 import java.io.IOException;

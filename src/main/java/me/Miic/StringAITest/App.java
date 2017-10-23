@@ -1,4 +1,4 @@
-package com.elyssiamc.Micc.chatParsingTest;
+package me.Miic.StringAITest;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
