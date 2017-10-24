@@ -71,17 +71,23 @@ public class MainController implements Initializable {
 					reg.setVisible(true);
 				}
 				System.out.println("Toxicity: " + percent);
-				pie.setTitle("Toxicity [" + percent + "%]");
+				
+				PieChart.Data temp = new PieChart.Data("~" + Math.round(percent) + "%", percent);
+				temp.getNode().setStyle("-fx-pie-color: green;");
+				
+				PieChart.Data antiTemp = new PieChart.Data("", 100-percent);
+				temp.getNode().setStyle("-fx-pie-color: crimson;");
+				
 				pieChartData = FXCollections.observableArrayList(
-						new PieChart.Data("~" + Math.round(percent) + "%", percent),
-						new PieChart.Data("", 100-percent)
+						temp,
+						antiTemp
 						);
 			} catch (UnknownHostException e) {
-				pie.setTitle("rip interwebs");
-				pieChartData = FXCollections.observableArrayList(new PieChart.Data(":3", 100));
+				PieChart.Data temp = new PieChart.Data("", 100);
+				temp.getNode().setStyle("-fx-pie-color: crimson;");
+				pieChartData = FXCollections.observableArrayList(temp);
 			} catch (Exception e) {
-				pie.setTitle("Error");
-				pieChartData = FXCollections.observableArrayList(new PieChart.Data("Error", 100));	
+				pieChartData = FXCollections.observableArrayList(new PieChart.Data("", 100));	
 			}
 			pie.setData(pieChartData);
 			
