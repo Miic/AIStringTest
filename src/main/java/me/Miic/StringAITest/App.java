@@ -27,6 +27,7 @@ public class App extends Application
     	button.setDefaultButton(true);
     	MainController controller = loader.getController();
     	controller.passStage(stage);
+    	stage.setResizable(false);
     	stage.setTitle("WholesomeChat AI Demo");
     	stage.setScene(scene);
     	stage.show();

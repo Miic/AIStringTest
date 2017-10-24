@@ -59,7 +59,7 @@ public class MainController implements Initializable {
 		if (txt.getText().length() != 0) { 
 			String token = txt.getText();
 			txt.clear();
-			lab.setText(lab.getText() + "\nCat says: " + token);
+			lab.setText(lab.getText() + "\nCat: " + token);
 			
 			//Toxicity Display
 			
@@ -77,8 +77,10 @@ public class MainController implements Initializable {
 						new PieChart.Data("", 100-percent)
 						);
 			} catch (UnknownHostException e) {
-				pieChartData = FXCollections.observableArrayList(new PieChart.Data("rip interwebs :3", 100));
+				pie.setTitle("rip interwebs");
+				pieChartData = FXCollections.observableArrayList(new PieChart.Data(":3", 100));
 			} catch (Exception e) {
+				pie.setTitle("Error");
 				pieChartData = FXCollections.observableArrayList(new PieChart.Data("Error", 100));	
 			}
 			pie.setData(pieChartData);
@@ -94,8 +96,8 @@ public class MainController implements Initializable {
 				while (keys.hasMoreElements()) {
 					String key = keys.nextElement();
 					XYChart.Series newElemente = new XYChart.Series();
-					newElemente.setName(key);
-					newElemente.getData().add(new XYChart.Data(key + " (" + tones.get(key) * 100 + "%)", tones.get(key) * 100));
+					newElemente.setName(key + " (" + tones.get(key) * 100 + "%)");
+					newElemente.getData().add(new XYChart.Data("", tones.get(key) * 100));
 					dat.add(newElemente);
 				}
 				XYChart.Series newElement = new XYChart.Series();
@@ -154,10 +156,10 @@ public class MainController implements Initializable {
 //	                |_|                                |___/                                   |___/     
 	
 	
-	private static ToneAnalyzer service = new ToneAnalyzer("2017-09-21", "WHAT", "NOTHIN");
+	private static ToneAnalyzer service = new ToneAnalyzer("2017-09-21", "", "");
 
     private static float getToxicity(String query) throws MalformedURLException, IOException {
-       	HttpURLConnection httpcon = (HttpURLConnection) ((new URL("https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=" + "REMOVED_AI KEY").openConnection()));
+       	HttpURLConnection httpcon = (HttpURLConnection) ((new URL("https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=" + "").openConnection()));
     	httpcon.setDoOutput(true);
     	httpcon.setRequestProperty("Content-Type", "application/json");
     	httpcon.setRequestProperty("Accept", "application/json");
