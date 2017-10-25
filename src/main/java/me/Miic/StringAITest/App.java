@@ -41,7 +41,7 @@ public class App extends Application
     	controller.passAnchor((AnchorPane) scene.lookup("#anchor"));
     	
     	LoginController loginController = loginPage.getController();
-    	loginController.passChatScene(scene);
+    	loginController.passChatScene(scene, controller);
     	loginController.passStage(stage);
     	
     	stage.setResizable(false);

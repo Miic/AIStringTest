@@ -57,7 +57,9 @@ public class MainController implements Initializable {
 	private Stage stage;
 	private AnchorPane anchor;
 	private Tile tile;
+	
 	private String lazyCache;
+	private String nick;
 	
 	@FXML
 	public void onButtonAction(ActionEvent event) {
@@ -99,7 +101,7 @@ public class MainController implements Initializable {
 				if (items == null) {
 					items = FXCollections.observableArrayList();
 				}
-				items.add( "\n[" + new SimpleDateFormat("HH:mm:ss").format(new Date()) + "] Megumin: " + token);
+				items.add( "\n[" + new SimpleDateFormat("HH:mm:ss").format(new Date()) + "] " + nick + ": " + token);
 				list.setItems(items);
 			} else {
 				System.out.println("Blocked");
@@ -156,10 +158,15 @@ public class MainController implements Initializable {
     	Map<String, String> headers = new HashMap<String, String>();
     	headers.put("X-Watson-Learning-Opt-Out", "true");
     	service.setDefaultHeaders(headers);
+    	nick = "Megumin";
 	}
 	
 	public void passStage(Stage stage) {
 		this.stage = stage;	
+	}
+	
+	public void passNick(String nick) {
+		this.nick = nick;
 	}
 
 	public void passAnchor(AnchorPane anchor) {

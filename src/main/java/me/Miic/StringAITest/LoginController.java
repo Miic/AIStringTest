@@ -7,17 +7,32 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 public class LoginController implements Initializable {
 	
 	private Stage stage;
 	private Scene scene;
+	private MainController passedController;
 
 	@FXML
 	public void onButtonAction(ActionEvent event) {
-		System.out.println("Button Clicked");
-		stage.setScene(scene);
+		Scene thisScene = stage.getScene();
+		
+		TextField userField = (TextField) thisScene.lookup("#username");
+		PasswordField passField = (PasswordField) thisScene.lookup("#password");
+		
+		if (!userField.getText().equals("") && !passField.getText().equals("")) {
+			if (!userField.getText().equals("")) {
+				passedController.passNick(userField.getText());
+			}
+			stage.setScene(scene);
+		} else {
+			userField.clear();
+			passField.clear();
+		}
 	}
 	
 	@Override
@@ -29,8 +44,9 @@ public class LoginController implements Initializable {
 		this.stage = stage;
 	}
 	
-	public void passChatScene(Scene scene) {
+	public void passChatScene(Scene scene, MainController controller) {
 		this.scene = scene;
+		this.passedController = controller;
 	}
 
 }
