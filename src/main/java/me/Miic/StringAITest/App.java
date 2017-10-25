@@ -8,6 +8,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.AnchorPane;
+
 import javafx.stage.Stage;
 
 /**
@@ -27,6 +29,7 @@ public class App extends Application
     	button.setDefaultButton(true);
     	MainController controller = loader.getController();
     	controller.passStage(stage);
+    	controller.passAnchor((AnchorPane) scene.lookup("#anchor"));
     	stage.setResizable(false);
     	stage.setTitle("WholesomeChat AI Demo");
     	stage.setScene(scene);

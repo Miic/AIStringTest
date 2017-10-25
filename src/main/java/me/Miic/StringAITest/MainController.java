@@ -10,8 +10,9 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -27,101 +28,128 @@ import com.ibm.watson.developer_cloud.tone_analyzer.v3.model.ToneChatOptions;
 import com.ibm.watson.developer_cloud.tone_analyzer.v3.model.Utterance;
 import com.ibm.watson.developer_cloud.tone_analyzer.v3.model.UtteranceAnalyses;
 
+import eu.hansolo.tilesfx.Tile;
+import eu.hansolo.tilesfx.TileBuilder;
+import eu.hansolo.tilesfx.Tile.SkinType;
+import eu.hansolo.tilesfx.chart.ChartData;
+import eu.hansolo.tilesfx.chart.RadarChart.Mode;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
-import javafx.scene.chart.BarChart;
-import javafx.scene.chart.PieChart;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.ListView;
+import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Stop;
 import javafx.stage.Stage;
+
+import me.Miic.StringAITest.Readability.Fathom;
+import me.Miic.StringAITest.Readability.Fathom.Stats;
+import me.Miic.StringAITest.Readability.Readability;
 
 public class MainController implements Initializable {
 	
 	private Stage stage;
-
+	private AnchorPane anchor;
+	private Tile tile;
+	private String lazyCache;
+	
 	@FXML
 	public void onButtonAction(ActionEvent event) {
 		System.out.println("Button Clicked");
 		Scene scene = stage.getScene();
 		
 		TextField txt = (TextField) scene.lookup("#textfield");
-		TextArea lab = (TextArea) scene.lookup("#label");
+		//TextArea lab = (TextArea) scene.lookup("#label");
 		Label reg = (Label) scene.lookup("#regret");
-		PieChart pie = (PieChart) scene.lookup("#pie");
-		BarChart<String, Float> bar = (BarChart<String, Float>) scene.lookup("#chart");
+		Slider slider = (Slider) scene.lookup("#slider");
+		Tile gauge = (Tile) scene.lookup("#gauge");
+		Tile circle = (Tile) scene.lookup("#circle");
+		ListView<String> list = (ListView<String>) scene.lookup("#list");
 		
-		if (txt.getText().length() != 0) { 
+		
+		if (txt.getText().length() != 0 && !txt.getText().equals(lazyCache)) { 
 			String token = txt.getText();
-			txt.clear();
-			lab.setText(lab.getText() + "\nCat: " + token);
 			
 			//Toxicity Display
 			
-			ObservableList<PieChart.Data> pieChartData;
-			reg.setVisible(false);
+			float percent = 0;
 			try {
-				float percent = getToxicity(token) * 100;
-				if (percent >= 90) {
-					reg.setVisible(true);
-				}
+				percent = getToxicity(token) * 100;
 				System.out.println("Toxicity: " + percent);
-				
-				PieChart.Data temp = new PieChart.Data("~" + Math.round(percent) + "%", percent);
-				temp.getNode().setStyle("-fx-pie-color: green;");
-				
-				PieChart.Data antiTemp = new PieChart.Data("", 100-percent);
-				temp.getNode().setStyle("-fx-pie-color: crimson;");
-				
-				pieChartData = FXCollections.observableArrayList(
-						temp,
-						antiTemp
-						);
-			} catch (UnknownHostException e) {
-				PieChart.Data temp = new PieChart.Data("", 100);
-				temp.getNode().setStyle("-fx-pie-color: crimson;");
-				pieChartData = FXCollections.observableArrayList(temp);
+				gauge.setValue(percent);
 			} catch (Exception e) {
-				pieChartData = FXCollections.observableArrayList(new PieChart.Data("", 100));	
+				gauge.setValue(0);
+				e.printStackTrace();
 			}
-			pie.setData(pieChartData);
+			gauge.setThreshold(slider.getValue());
 			
-			//Tone Display
-			bar.getData().clear();
-			bar.setTitle("Tones");
+			circle.setValue(getReadability(token).get("Complexity"));
+			
+			
+			//Post to chat?
+			if ( slider.getValue() == 0 || percent < slider.getValue() ) {
+				txt.clear();
+				ObservableList<String> items = list.getItems();
+				if (items == null) {
+					items = FXCollections.observableArrayList();
+				}
+				items.add( "\n[" + new SimpleDateFormat("HH:mm:ss").format(new Date()) + "] Megumin: " + token);
+				list.setItems(items);
+			} else {
+				System.out.println("Blocked");
+				
+				ObservableList<String> items = list.getItems();
+				if (items == null) {
+					items = FXCollections.observableArrayList();
+				}
+				items.add("\n[!] Blocked by Toxicity Limiter - " + slider.getValue() + "% <= " + percent + "%");
+				list.setItems(items);
+				
+				txt.setDisable(true);
+				try {
+					Thread.sleep(3000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				txt.clear();
+				txt.setDisable(false);
+			}
+			//Auto scroll to latest thingy ma bobber
+			list.scrollTo(list.getItems().get(list.getItems().size() - 1));
+			
+			
+			//Tone Analyzer
 			try {
 				Hashtable<String, Float> tones = getTone(token);
 				System.out.println(tones);
 				Enumeration<String> keys = tones.keys();
-				List<XYChart.Series> dat = new ArrayList<XYChart.Series>();
+				int counter = 0;
+				List<ChartData> dat = new ArrayList<ChartData>(); 
+				ChartData temp = new ChartData(percent);
+				temp.setName("Toxicity ~" + Math.round(percent) + "%");
+				dat.add(temp);
 				while (keys.hasMoreElements()) {
 					String key = keys.nextElement();
-					XYChart.Series newElemente = new XYChart.Series();
-					newElemente.setName(key + " (" + tones.get(key) * 100 + "%)");
-					newElemente.getData().add(new XYChart.Data("", tones.get(key) * 100));
+					ChartData newElemente = new ChartData(Math.round(tones.get(key) * 100));
+					newElemente.setName(key + " ~" + Math.round(tones.get(key) * 100) + "%");
 					dat.add(newElemente);
+					counter++;
 				}
-				XYChart.Series newElement = new XYChart.Series();
-				newElement.setName("Reference");
-				newElement.getData().add(new XYChart.Data("Reference (100%)", 100));
-				dat.add(0, newElement);
-				if (dat.size() > 1) {
-					bar.setVisible(true);
-					for(XYChart.Series x : dat) {
-						bar.getData().add(x);
-					}
-				} else {
-					bar.setVisible(false);
+				while (counter < 4) {
+					dat.add(new ChartData(0));
+					counter++;
 				}
+				createToneChart(dat);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}
+   		}
 	}
 	
 	public void initialize(URL location, ResourceBundle resources) {
@@ -131,14 +159,92 @@ public class MainController implements Initializable {
 	}
 	
 	public void passStage(Stage stage) {
-		this.stage = stage;
+		this.stage = stage;	
 	}
 
+	public void passAnchor(AnchorPane anchor) {
+		this.anchor = anchor;
+		ArrayList<ChartData> dat = new ArrayList<>();
+		dat.add(new ChartData(50));
+		dat.add(new ChartData(50));
+		dat.add(new ChartData(50));
+		dat.add(new ChartData(50));
+		dat.add(new ChartData(50));
+		createToneChart(dat);
+		
+	 	Tile gauge = TileBuilder.create()
+	 	        .skinType(SkinType.GAUGE)
+	 	        .prefSize(150, 150)
+	 	        .layoutX(490)
+	 	        .layoutY(440)
+	 	        .title("Toxcity")
+	 	        .unit("%")
+	 	        .threshold(100)
+	 	        .thresholdVisible(false)
+	 	        .build();
+	 	gauge.setId("gauge");
+	    anchor.getChildren().add(gauge);
+	    
+	    Tile circularProgressTile = TileBuilder.create()
+                .skinType(SkinType.CIRCULAR_PROGRESS)
+                .prefSize(150, 150)
+	 	        .layoutX(490 + 150 + 10)
+	 	        .layoutY(440)
+                .title("Complexity")
+                .text("")
+                .unit("\u0025")
+                //.graphic(new WeatherSymbol(ConditionAndIcon.CLEAR_DAY, 48, Color.WHITE))
+                .build();
+	    circularProgressTile.setId("circle");
+	    anchor.getChildren().add(circularProgressTile);
+	}
 	
-	
-	
-	
-	
+	@SuppressWarnings("unchecked")
+	private void createToneChart(List<ChartData> list) {
+		if (tile != null) {
+			anchor.getChildren().remove(tile);
+			tile = null;
+		}
+		
+		List<ChartData> emptyList = new ArrayList<ChartData>();
+		for(int i = 0; i < list.size(); i++) {
+			emptyList.add(new ChartData(0));
+		}
+		
+	 	tile = TileBuilder.create().skinType(SkinType.RADAR_CHART)
+                .prefSize(310, 410)
+                .layoutX(490)
+                .layoutY(15)
+                .minValue(0)
+                .maxValue(100)
+                //.title("RadarChart Tile")
+                .unit("Tones")
+                .radarChartMode(Mode.POLYGON)
+                .gradientStops(new Stop(0.00000, Color.TRANSPARENT),
+                               new Stop(0.00001, Color.web("#3552a0")),
+                               new Stop(0.09090, Color.web("#456acf")),
+                               new Stop(0.27272, Color.web("#45a1cf")),
+                               new Stop(0.36363, Color.web("#30c8c9")),
+                               new Stop(0.45454, Color.web("#30c9af")),
+                               new Stop(0.50909, Color.web("#56d483")),
+                               new Stop(0.72727, Color.web("#9adb49")),
+                               new Stop(0.81818, Color.web("#efd750")),
+                               new Stop(0.90909, Color.web("#ef9850")),
+                               new Stop(1.00000, Color.web("#ef6050")))
+                //.text("Sector")
+                .tooltipText("")
+                .chartData(emptyList)
+                .animated(true)
+                //.backgroundColor(Color.TRANSPARENT)
+                .build();
+	 	emptyList = tile.getChartData();
+	 	for (int i = 0; i < list.size(); i++) {
+	 		emptyList.get(i).setName(list.get(i).getName());
+	 		emptyList.get(i).setValue(list.get(i).getValue());
+	 	}
+	 	
+    	anchor.getChildren().add(tile);
+	}
 	
 	
 	
@@ -209,6 +315,17 @@ public class MainController implements Initializable {
     	for(int i = 0; i < tones.size(); i++) {
     		returnTable.put(tones.get(i).getAsJsonObject().get("tone_name").getAsString(), tones.get(i).getAsJsonObject().get("score").getAsFloat());
     	}
+    	return returnTable;
+    }
+    
+    private static Hashtable<String, Float> getReadability(String query) {
+    	Hashtable<String, Float> returnTable = new Hashtable<String,Float>();
+    	Stats info = Fathom.analyze(query);
+    	returnTable.put("Flesch", Readability.calcFlesch(info));
+    	returnTable.put("Fog", Readability.calcFog(info));
+    	returnTable.put("Kincaid", Readability.calcFlesch(info));
+    	returnTable.put("Complexity", Readability.percentComplexWords(info));
+    	returnTable.put("Syllables", Readability.syllablesPerWords(info));
     	return returnTable;
     }
 
