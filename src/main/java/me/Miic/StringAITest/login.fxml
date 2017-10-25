@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="385.0" prefWidth="695.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.Miic.StringAITest.LoginController">
+   <children>
+      <AnchorPane prefHeight="400.0" prefWidth="456.0" style="-fx-background-color: #78C1DC;">
+         <children>
+            <ImageView fitHeight="231.0" fitWidth="445.0" layoutX="31.0" layoutY="169.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@aqua.png" />
+               </image>
+            </ImageView>
+         </children></AnchorPane>
+      <AnchorPane layoutX="437.0" prefHeight="400.0" prefWidth="270.0" style="-fx-background-color: #565956;">
+         <children>
+            <TextField fx:id="username" layoutX="26.0" layoutY="132.0" opacity="0.5" prefHeight="25.0" prefWidth="221.0" promptText="username" />
+            <PasswordField fx:id="password" layoutX="26.0" layoutY="194.0" opacity="0.5" prefHeight="25.0" prefWidth="221.0" promptText="password" />
+            <Button fx:id="login" layoutX="26.0" layoutY="256.0" mnemonicParsing="false" onAction="#onButtonAction" opacity="0.75" prefHeight="25.0" prefWidth="221.0" style="-fx-background-color: #78C1DC;" text="Login" />
+            <Label layoutX="96.0" layoutY="42.0" prefHeight="53.0" prefWidth="81.0" text="Sign In" textAlignment="CENTER" textFill="WHITE">
+               <font>
+                  <Font size="24.0" />
+               </font>
+            </Label>
+            <Hyperlink fx:id="forgot" layoutX="86.0" layoutY="293.0" text="Forgot Password?" underline="true" />
+         </children>
+      </AnchorPane>
+      <AnchorPane opacity="0.3" prefHeight="400.0" prefWidth="437.0" style="-fx-background-color: #565956;" />
+      <AnchorPane prefHeight="413.0" prefWidth="437.0">
+         <children>
+            <Label layoutX="23.0" layoutY="71.0" text="Welcome to Wholesome" textFill="WHITE">
+               <font>
+                  <Font size="36.0" />
+               </font>
+            </Label>
+            <Label layoutX="56.0" layoutY="124.0" prefHeight="53.0" prefWidth="327.0" text="A chat service made up by college students that have no idea what they're doing. Join now!" textFill="#ddd3d3" wrapText="true">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Label>
+            <Button fx:id="signup" layoutX="209.0" layoutY="192.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="196.0" style="-fx-background-color: #565956;" text="Sign Up" textFill="WHITE">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Button>
+         </children>
+      </AnchorPane>
+   </children>
+</AnchorPane>
