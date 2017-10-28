@@ -2,40 +2,38 @@ package me.Miic.StringAITest;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 
 import javafx.stage.Stage;
+import me.Miic.StringAITest.Controllers.LoginController;
+import me.Miic.StringAITest.Controllers.MainController;
 
 /**
  * Hello world!
  *
  */
 public class App extends Application
-{
-	private Button button;
-	private Button login;
-	
-	
+{	
 	@Override
 	public void start(Stage stage) throws Exception {
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("testpage.fxml"));
+		
+		//UI setup
+		
+		//main chatting loader
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/me/Miic/StringAITest/fxml/testpage.fxml"));
     	Parent root = loader.load();
     	Scene scene = new Scene(root);
-    	FXMLLoader loginPage = new FXMLLoader(getClass().getResource("login.fxml"));
+    	
+    	//intial login page
+    	FXMLLoader loginPage = new FXMLLoader(getClass().getResource("/me/Miic/StringAITest/fxml/login.fxml"));
     	Parent loginRoot = loginPage.load();
     	Scene loginScene = new Scene(loginRoot);
     	
-    	button = (Button) scene.lookup("#check");
-    	button.setDefaultButton(true);
+    	//Backend setup
     	
-    	login = (Button) loginScene.lookup("#login");
-    	
+    	//Pass appropriate information to the controller classes
     	MainController controller = loader.getController();
     	controller.passStage(stage);
     	controller.passAnchor((AnchorPane) scene.lookup("#anchor"));
@@ -44,19 +42,12 @@ public class App extends Application
     	loginController.passChatScene(scene, controller);
     	loginController.passStage(stage);
     	
+    	
+    	//Initialize Stage Displays
     	stage.setResizable(false);
     	stage.setTitle("WholesomeChat AI Demo");
     	stage.setScene(loginScene);
     	stage.show();
-	}
-	
-	private void setGlobalEventHandler(Node root) {
-	    root.addEventHandler(KeyEvent.KEY_PRESSED, ev -> {
-	        if (ev.getCode() == KeyCode.ENTER) {
-	           button.fire();
-	           ev.consume(); 
-	        }
-	    });
 	}
 	
 	public static void main(String[] args) {

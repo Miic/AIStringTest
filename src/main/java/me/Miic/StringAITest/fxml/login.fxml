@@ -10,13 +10,13 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="385.0" prefWidth="695.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.Miic.StringAITest.LoginController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="385.0" prefWidth="695.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.Miic.StringAITest.Controllers.LoginController">
    <children>
       <AnchorPane prefHeight="400.0" prefWidth="456.0" style="-fx-background-color: #78C1DC;">
          <children>
             <ImageView fitHeight="231.0" fitWidth="445.0" layoutX="31.0" layoutY="169.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@aqua.png" />
+                  <Image url="@../resources/aqua.png" />
                </image>
             </ImageView>
          </children></AnchorPane>

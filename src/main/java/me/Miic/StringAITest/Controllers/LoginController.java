@@ -1,4 +1,4 @@
-package me.Miic.StringAITest;
+package me.Miic.StringAITest.Controllers;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -17,6 +17,18 @@ public class LoginController implements Initializable {
 	private Scene scene;
 	private MainController passedController;
 
+	/* 
+	 * FXML event. Tied to both button and text-enter key
+	 * Since this is not hooked up to a SQL database at the moment as it is a client demo,
+	 * Simply just checks for both user and pass.
+	 * And passes the user used as an argument to the next scene.
+	 * 
+	 * SQL database implemention should be entered here!
+	 * Remember to add regex checking in the fields in case of SQL Injection!
+	 * 
+	 */
+	
+	
 	@FXML
 	public void onButtonAction(ActionEvent event) {
 		Scene thisScene = stage.getScene();
@@ -43,6 +55,12 @@ public class LoginController implements Initializable {
 	public void passStage(Stage stage) {
 		this.stage = stage;
 	}
+	
+	
+	/* 
+	 * Used for passing the next scene after login to this controller.
+	 * 
+	 */
 	
 	public void passChatScene(Scene scene, MainController controller) {
 		this.scene = scene;

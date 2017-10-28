@@ -1,4 +1,4 @@
-package me.Miic.StringAITest;
+package me.Miic.StringAITest.Controllers;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,6 +23,7 @@ import java.util.ResourceBundle;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.ibm.watson.developer_cloud.service.exception.UnauthorizedException;
 import com.ibm.watson.developer_cloud.tone_analyzer.v3.ToneAnalyzer;
 import com.ibm.watson.developer_cloud.tone_analyzer.v3.model.ToneChatOptions;
 import com.ibm.watson.developer_cloud.tone_analyzer.v3.model.Utterance;
@@ -39,7 +40,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
@@ -61,6 +61,11 @@ public class MainController implements Initializable {
 	private String lazyCache;
 	private String nick;
 	
+	/* Used for changing chart pushing to API
+	 * Since this is a demo client this is done here
+	 * In a real server-client setup, API pushing should be done on server end.
+	 */
+	
 	@FXML
 	public void onButtonAction(ActionEvent event) {
 		System.out.println("Button Clicked");
@@ -68,10 +73,10 @@ public class MainController implements Initializable {
 		
 		TextField txt = (TextField) scene.lookup("#textfield");
 		//TextArea lab = (TextArea) scene.lookup("#label");
-		Label reg = (Label) scene.lookup("#regret");
 		Slider slider = (Slider) scene.lookup("#slider");
 		Tile gauge = (Tile) scene.lookup("#gauge");
 		Tile circle = (Tile) scene.lookup("#circle");
+		@SuppressWarnings("unchecked")
 		ListView<String> list = (ListView<String>) scene.lookup("#list");
 		
 		
@@ -85,6 +90,15 @@ public class MainController implements Initializable {
 				percent = getToxicity(token) * 100;
 				System.out.println("Toxicity: " + percent);
 				gauge.setValue(percent);
+			} catch (IOException e) {
+				String msg = "<!> Missing API Key for Perspective API. Be sure to enter it in MainController.java!";
+				System.out.println(msg);
+				ObservableList<String> items = list.getItems();
+				if (items == null) {
+					items = FXCollections.observableArrayList();
+				}
+				items.add(msg);
+				list.setItems(items);
 			} catch (Exception e) {
 				gauge.setValue(0);
 				e.printStackTrace();
@@ -148,11 +162,27 @@ public class MainController implements Initializable {
 					counter++;
 				}
 				createToneChart(dat);
+			} catch (UnauthorizedException e) {
+				String msg = "<!> Missing API Key for Watson API. Be sure to enter it in MainController.java!";
+				System.out.println(msg);
+				ObservableList<String> items = list.getItems();
+				if (items == null) {
+					items = FXCollections.observableArrayList();
+				}
+				items.add(msg);
+				list.setItems(items);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
    		}
 	}
+	
+	/* Used for setting up variable beforehand.
+	 * DO NOT USE FOR INITIALIZING TILES OR OBJECTS IN UI
+	 * the stage is not guaranteed fully initialized at this point
+	 * 
+	 */
+	
 	
 	public void initialize(URL location, ResourceBundle resources) {
     	Map<String, String> headers = new HashMap<String, String>();
@@ -161,13 +191,30 @@ public class MainController implements Initializable {
     	nick = "Megumin";
 	}
 	
+	/* Used to pass the stage currently being worked on.
+	 * Useful for interacting with FXML generated objects.
+	 * 
+	 */
+	
 	public void passStage(Stage stage) {
 		this.stage = stage;	
 	}
 	
+	/* Used to pass the login name from the Login page
+	 * Useful for receiving login info
+	 * If more than this info is being passed in the future, rework into a byte based transfer system.
+	 * 
+	 */
+
+	
 	public void passNick(String nick) {
 		this.nick = nick;
 	}
+	
+	/* PassAnchor is used by the Application class to pass the anchorpanel being worked on
+	 * Allowing the controller class to add new TilesFX since they cannot be 
+	 * from an FXML file as it is a third-party library object 
+	 */
 
 	public void passAnchor(AnchorPane anchor) {
 		this.anchor = anchor;
@@ -205,6 +252,12 @@ public class MainController implements Initializable {
 	    circularProgressTile.setId("circle");
 	    anchor.getChildren().add(circularProgressTile);
 	}
+	
+	
+	/* Due to the data being dynamic and the chart being static,
+	 * giving a Radar Chart data that does not match its current data structure causes it to freeze
+	 * Therefore, we must create a new chart and delete the old one at every chart change.
+	 */
 	
 	@SuppressWarnings("unchecked")
 	private void createToneChart(List<ChartData> list) {
@@ -274,11 +327,15 @@ public class MainController implements Initializable {
 //	                | |                                 __/ |                                   __/ |    
 //	                |_|                                |___/                                   |___/     
 	
+	/* 
+	 * Used for calling Toxicity AI checks.
+	 * 
+	 */
 	
-	private static ToneAnalyzer service = new ToneAnalyzer("2017-09-21", "", "");
+	private static ToneAnalyzer service = new ToneAnalyzer("2017-09-21", "REMOVED USED", "REMOVED PASS");
 
     private static float getToxicity(String query) throws MalformedURLException, IOException {
-       	HttpURLConnection httpcon = (HttpURLConnection) ((new URL("https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=" + "").openConnection()));
+       	HttpURLConnection httpcon = (HttpURLConnection) ((new URL("https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key=" + "REMOVED KEY").openConnection()));
     	httpcon.setDoOutput(true);
     	httpcon.setRequestProperty("Content-Type", "application/json");
     	httpcon.setRequestProperty("Accept", "application/json");
@@ -313,6 +370,14 @@ public class MainController implements Initializable {
     	return jResponse.get("attributeScores").getAsJsonObject().get("TOXICITY").getAsJsonObject().get("summaryScore").getAsJsonObject().get("value").getAsFloat();
     }
     
+	/* 
+	 * Used for calling Tone checks.
+	 * Hashtable is used for return because the tone of the data returned is not consistent.
+	 * Recommended to use the key enumerable to iterate through the keys.
+	 * 
+	 */
+	
+    
     private static Hashtable<String, Float> getTone(String query) {
     	ToneChatOptions options = new ToneChatOptions.Builder().addUtterances(new Utterance.Builder().text(query).build()).build();
     	UtteranceAnalyses tone = service.toneChat(options).execute();    	
@@ -324,6 +389,12 @@ public class MainController implements Initializable {
     	}
     	return returnTable;
     }
+    
+	/* 
+	 * Used for calling Readability checks from the local library. (Algorithm based, not AI)
+	 * 
+	 */
+	
     
     private static Hashtable<String, Float> getReadability(String query) {
     	Hashtable<String, Float> returnTable = new Hashtable<String,Float>();
